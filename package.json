@@ -1,0 +1,22 @@
+{
+  "name": "codewarden",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An agentic AI reviewer that watches every pull request for security risk and standards drift.",
+  "workspaces": [
+    "server",
+    "dashboard"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "dev:dashboard": "npm run dev --workspace=dashboard",
+    "build": "npm run build --workspace=server && npm run build --workspace=dashboard",
+    "typecheck": "npm run typecheck --workspace=server && npm run typecheck --workspace=dashboard",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:dashboard\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "author": "Prince Singh Kushwah",
+  "license": "MIT"
+}

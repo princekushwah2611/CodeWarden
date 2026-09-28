@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  githubId    Int      @unique
+  login       String
+  name        String
+  avatarUrl   String
+  accessToken String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Repository {
+  id                String              @id @default(cuid())
+  githubRepoId      Int                 @unique
+  name              String
+  owner             String
+  installationId    Int
+  severityThreshold String              @default("medium")
+  autoApprove       Boolean             @default(false)
+  ignoredPatterns   String              @default("")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  reviews           Review[]
+  standardsDocs     StandardsDocument[]
+}
+
+model StandardsDocument {
+  id         String   @id @default(cuid())
+  repoId     String
+  sourceFile String
+  chunkCount Int      @default(0)
+  uploadedAt DateTime @default(now())
+  repo       Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  prNumber    Int
+  repoId      String
+  status      String    @default("pending")
+  actionTaken String?
+  summary     String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  durationMs  Int?
+  repo        Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  findings    Finding[]
+
+  @@index([repoId, createdAt])
+}
+
+model Finding {
+  id            String  @id @default(cuid())
+  reviewId      String
+  type          String
+  severity      String?
+  file          String
+  lineStart     Int?
+  lineEnd       Int?
+  explanation   String
+  suggestion    String
+  ruleId        String?
+  falsePositive Boolean @default(false)
+  review        Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([type, severity])
+}
